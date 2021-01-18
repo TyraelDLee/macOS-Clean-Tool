@@ -38,8 +38,8 @@ public class mainProgress {
         exec(cmd);
     }
 
-    public void deleteS(String timestep){
-        String[] cmd = {BIN, "-c", this.password+SUDO+DELETE+" "+timestep};
+    public void deleteS(String timestamp){
+        String[] cmd = {BIN, "-c", this.password+SUDO+DELETE+" "+timestamp};
         exec(cmd);
     }
 
@@ -48,8 +48,8 @@ public class mainProgress {
         exec(cmd);
     }
 
-    public void delete(String timestep){
-        String[] cmd = {DELETE+" "+timestep};
+    public void delete(String timestamp){
+        String[] cmd = {DELETE+" "+timestamp};
         exec(cmd);
     }
 
