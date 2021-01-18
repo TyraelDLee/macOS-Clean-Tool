@@ -3,11 +3,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
 
 public class cleanUtilCLT {
     // tmutil deletelocalsnapshots [timestamp]
-    private static final String DELETE = "tmutil deletelocalsnapshots ";
+    private static final String DELETE = "tmutil deletelocalsnapshots";
     // show the all snaps related on timestamp
     private static final String SCAN = "tmutil listlocalsnapshots /";
     private static final String SUDO = " | sudo -S ";//-S is necessary, strange..
@@ -15,12 +14,12 @@ public class cleanUtilCLT {
     private String command  = "";
     private String password = "";
     private Process executor = null;
-    private boolean observered = false;
+    private boolean observed = false;
 
     public cleanUtilCLT(){}
 
     public cleanUtilCLT(boolean observered){
-        this.observered = observered;
+        this.observed = observered;
     }
 
     public cleanUtilCLT(String command){
@@ -42,41 +41,43 @@ public class cleanUtilCLT {
     }
 
     public void scan(){
-        String[] cmd = {BIN,"-c","| ",SCAN};
+        String[] cmd = {SCAN};
         exec(cmd);
     }
 
     public void delete(String timestep){
-        String[] cmd = {BIN,"-c","| ",DELETE+" "+timestep};
+        String[] cmd = {DELETE+" "+timestep};
         exec(cmd);
     }
 
     private String exec(String[] cmd){
         StringBuilder callBack = new StringBuilder();
         try {
-            executor = Runtime.getRuntime().exec(cmd);
-            InputStreamReader ir = new InputStreamReader(executor.getInputStream());
-            BufferedReader br = new BufferedReader(ir);
+            executor = Runtime.getRuntime().exec(cmd[0]);
+            BufferedReader br = new BufferedReader(new InputStreamReader(executor.getInputStream()));
             String line;
             while ((line = br.readLine()) != null)
                 callBack.append(line).append("\n");
-            if(!this.observered)
-                System.out.println(callBack.toString());
-        }catch (IOException e){}
+            System.out.println(callBack.toString());
+            executor.waitFor();
+            br.close();
+            executor.destroy();
+        }catch (IOException | InterruptedException e){}
         return callBack.toString();
     }
 
     public void getSnaps(){
-        this.observered = true;
-        String callback = exec(new String[]{BIN,"-c","| ",SCAN});
+        String callback = exec(new String[]{SCAN});
         String[] snaps = callback.replace("com.apple.TimeMachine.","").replace(".local","").split("\n");
         for(String snap : snaps){
-            delete(snap);
+            if(!snap.contains("Snapshots for disk")){
+                delete(snap);
+            }
         }
     }
 
     public void getSnapsS(){
-        this.observered = true;
+        this.observed = true;
         String callback = exec(new String[]{BIN, "-c", this.password+SUDO+SCAN});
         String[] snaps = callback.replace("com.apple.TimeMachine.","").replace(".local","").split("\n");
         if(snaps.length<=1)
@@ -91,7 +92,6 @@ public class cleanUtilCLT {
     }
 
     public static void main(String[] args) {
-        String[] command = args;
         cleanUtilCLT mainProgress = new cleanUtilCLT(false);
         if (args.length < 1) {
             mainProgress.scan();

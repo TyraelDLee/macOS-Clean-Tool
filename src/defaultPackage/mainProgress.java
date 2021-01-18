@@ -96,7 +96,7 @@ public class mainProgress {
     }
 
     public static void main(String[] args){
-        String[] command = new String[]{""};
+        String[] command = new String[]{"-s"};
         mainProgress mainProgress = new mainProgress(false);
         Scanner input = new Scanner(System.in);
         if(command.length<1){
